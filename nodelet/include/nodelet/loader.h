@@ -43,6 +43,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "nodelet/nodelet_macro.h"
+
 namespace ros
 {
 class NodeHandle;
@@ -57,7 +59,7 @@ typedef std::vector<std::string> V_string;
 /** \brief A class which will construct and sequentially call Nodelets according to xml
  * This is the primary way in which users are expected to interact with Nodelets
  */
-class Loader
+class NODELET_DECL Loader
 {
 public:
   /** \brief Construct the nodelet loader with optional ros API at default location of NodeHandle("~")*/

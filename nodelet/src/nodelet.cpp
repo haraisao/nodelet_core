@@ -43,11 +43,18 @@
 @b nodeletcpp is a tool for loading/unloading nodelets to/from a Nodelet manager.
 **/
 #include <signal.h>
+
+#if _WIN32
+#include <Rpc.h>
+#pragma comment(lib, "rpcrt4.lib")
+#else
 #include <uuid/uuid.h>
+#endif
 
 #include <ros/ros.h>
 #include <ros/xmlrpc_manager.h>
 #include <bondcpp/bond.h>
+
 #include "nodelet/loader.h"
 #include "nodelet/NodeletList.h"
 #include "nodelet/NodeletLoad.h"
@@ -55,11 +62,21 @@
 
 std::string genId()
 {
+#ifdef _WIN32
+  UUID uuid;
+  UuidCreate(&uuid);
+  unsigned char *str;
+  UuidToStringA(&uuid, &str);
+  std::string return_string(reinterpret_cast<char *>(str));
+  RpcStringFreeA(&str);
+  return return_string;
+#else
   uuid_t uuid;
   uuid_generate_random(uuid);
   char uuid_str[40];
   uuid_unparse(uuid, uuid_str);
   return std::string(uuid_str);
+#endif
 }
 
 class NodeletArgumentParsing
@@ -341,7 +358,11 @@ int
         ROS_INFO("Bond broken, exiting");
         goto shutdown;
       }
+#ifdef _WIN32
+	    Sleep(100);
+#else
       usleep(100000);
+#endif
     }
     // Attempt to unload the nodelet before shutting down ROS
     ni.unloadNodelet(name, manager);
